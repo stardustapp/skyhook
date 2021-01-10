@@ -1,0 +1,92 @@
+<!doctype html>
+<title>Skyhook Admin</title>
+<link href="/~~/lib/typeface-roboto/index.css" rel="stylesheet">
+<link href="/~~/lib/material-icons/material-icons.css" rel="stylesheet">
+<link href="/~~/lib/@dustjs-client-vue/dustjs-client-vue.css" type="text/css" rel="stylesheet">
+<link href="app.css" type="text/css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="x-stardust-appid" content="webhooks">
+<meta name="x-stardust-assume-user" content="webhooks">
+
+<script type="text/x-template" id="recent-hook">
+  <div class="entry">
+
+    <sky-action-button v-if="status.text == 'Failed'"
+      :class="'level-cell level '+status.level"
+      :path="entry._path+'/state'"
+      action-op="store" action-value="Waiting"
+      :attrs="{title: `Click to retry`}"
+    >{{status.text}}</sky-action-button>
+    <span v-else :class="'level '+status.level">{{status.text}}</span>
+
+    <span class="message">{{entry.request?.Op}} {{entry.request?.Path}}</span>
+    <span class="fields">
+
+      <span v-if="entry.request"
+        ><em>operation</em>{{entry.request.Op}}</span>
+      <span v-if="entry.request?.Path"
+        ><em>path</em>{{entry.request.Path}}</span>
+      <span v-if="entry.request?.Dest"
+        ><em>destination</em>{{entry.request.Dest}}</span>
+
+      <span v-if="entry.request?.Input"
+        ><em>input</em>{{JSON.stringify(entryToJS(JSON.parse(entry.request.Input)), null, 2)}}</span>
+
+      <span v-if="output.Type == 'Error'"
+        ><em>error</em>{{output.StringValue}}</span>
+      <span v-if="output.Type == 'String' && output.Name == 'error-message'"
+        ><em>error msg</em>{{output.StringValue}}</span>
+
+    </span>
+    <span class="time">{{formattedDate}}</span>
+
+  </div>
+</script>
+
+<script type="text/x-template" id="recent-hooks">
+    <section>
+        <header>
+            <h1>Recent Hook Operations</h1>
+        </header>
+
+        <!-- <article class="logs"> -->
+
+          <sky-foreach
+              el="article" class="logs"
+              path="services/processor/recent-frames"
+              fields="todo"
+              order-by="-origin.date"
+              :depth="2">
+
+              <recent-hook slot="item" slot-scope="entry" :key="entry._id" :entry="entry" />
+
+        </sky-foreach>
+        <!-- </article> -->
+    </section>
+</script>
+
+<div id="app">
+  <!-- render top bar w/ connection state and current user -->
+  <sky-session></sky-session>
+  <!-- sometimes-visible form to interact with Firebase Auth -->
+  <sky-auth-form app-name="skyhook administration"></sky-auth-form>
+
+  <main v-if="ready">
+    <recent-hooks></recent-hooks>
+  </main>
+</div>
+
+<script src="/~~/lib/vue/vue.js"></script>
+<script src="/~~/lib/@dustjs-client/dustjs-client.umd.js"></script>
+<script src="/~~/lib/@dustjs-client-vue/dustjs-client-vue.umd.js"></script>
+<script src="app.js"></script>
+<script>
+  Vue.use(DustClientVue.AppPlugin);
+  // Vue.use(DustClientVue.MixinPlugin);
+  DustClientVue.bootNow();
+</script>
+
+<script defer src="/__/firebase/7.14.2/firebase-app.js"></script>
+<script defer src="/__/firebase/7.14.2/firebase-auth.js"></script>
+<script defer src="/__/firebase/init.js"></script>
