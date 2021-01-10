@@ -2,9 +2,8 @@ import { WireType, WireRequest } from "./deps.ts";
 import { HookData } from "./types.ts";
 import { fetchServiceAccountToken } from './metadata-server.ts';
 
-export async function submitHook(hookData: HookData) {
-
-  await pushFrame({
+export function submitHook(hookData: HookData) {
+  return pushFrame({
     Op: 'invoke',
     Path: '/process hook',
     Input: {
@@ -25,23 +24,27 @@ export async function submitHook(hookData: HookData) {
         { Type: 'String', Name: 'Payload type', StringValue: hookData.payloadType },
       ],
     }});
-
-  // temporary, for returning to client
-  return hookData;
 }
 
 // import { ServiceAccount } from "https://danopia.net/deno/google-service-account@v1.ts";
 // const credential = await ServiceAccount.readFromFile("../../my-deployments/stardust-skyhook/firebase-service-account.json");
 // const token = await credential.issueToken("https://www.googleapis.com/auth/datastore");
 
+// project id can probably come from elsewhere?
+const projectId = Deno.env.get('RECEIVER_PROJECT_ID');
+if (!projectId) throw new Error(`Envvar RECEIVER_PROJECT_ID is required`);
+const collectionPath = Deno.env.get('RECEIVER_FRAME_COLLECTION') ?? '/frames';
+
 async function pushFrame(request: WireRequest) {
   // TODO: try talking directly over HTTP before falling back to fireproxy
 
+  // TODO: cache token for some time
   const token = await fetchServiceAccountToken(['https://www.googleapis.com/auth/datastore']);
 
+  // TODO: send metrics to Datadog
   // Datadog.countFireOp('write', frameCollRef, {fire_op: 'add', method: 'service/request'});
   const doc = await fetch(
-    'https://firestore.googleapis.com/v1/projects/stardust-skyhook/databases/(default)/documents/frames', {
+    `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents${collectionPath}`, {
       method: 'POST',
       body: JSON.stringify({
         fields: {
@@ -53,7 +56,7 @@ async function pushFrame(request: WireRequest) {
           }}},
           origin: { mapValue: { fields: {
             hostname: { stringValue: Deno.hostname() },
-            service: { stringValue: 'cloudrun' },
+            wantsResponse: { booleanValue: false },
             date: { timestampValue: new Date().toISOString() },
           }}},
         },
