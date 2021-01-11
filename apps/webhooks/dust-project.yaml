@@ -4,6 +4,10 @@ bundles:
 - source: web
   type: static html
 
+- source: routines
+  type: app routines
+  runtime: deno
+
 hosted_libraries:
 - npm_module: 'vue'
   min_version: '2.6.11'
