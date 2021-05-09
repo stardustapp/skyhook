@@ -45,25 +45,25 @@
 </script>
 
 <script type="text/x-template" id="recent-hooks">
-    <section>
-        <header>
-            <h1>Recent Hook Operations</h1>
-        </header>
+  <section>
+    <header>
+      <h1>Recent Hook Operations</h1>
+    </header>
 
-        <!-- <article class="logs"> -->
+    <!-- <article class="logs"> -->
 
-          <sky-foreach
-              el="article" class="logs"
-              path="services/processor/recent-frames"
-              fields="todo"
-              order-by="-origin.date"
-              :depth="2">
+    <sky-foreach
+      el="article" class="logs"
+      path="services/processor/recent-frames"
+      fields="todo"
+      order-by="-origin.date"
+      :depth="2">
 
-              <recent-hook slot="item" slot-scope="entry" :key="entry._id" :entry="entry" />
+      <recent-hook slot="item" slot-scope="entry" :key="entry._id" :entry="entry" />
 
-        </sky-foreach>
-        <!-- </article> -->
-    </section>
+    </sky-foreach>
+    <!-- </article> -->
+  </section>
 </script>
 
 <div id="app">
@@ -84,6 +84,7 @@
 <script>
   Vue.use(DustClientVue.AppPlugin);
   // Vue.use(DustClientVue.MixinPlugin);
+  //CONFIGURE SKYLINK//
   DustClientVue.bootNow();
 </script>
 
