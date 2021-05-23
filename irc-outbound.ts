@@ -146,7 +146,7 @@ class IrcOutboundRuntime {
 }
 
 new AutomatonBuilder<IrcOutboundRuntime>()
-  .withMount('/irc-state', 'session:/services/irc-automaton/namespace/state')
+  .withMount('/irc-state', 'session:/services/irc-automaton/mnt/namespace/state')
   .withMount('/irc-persist', 'session:/persist/irc')
   .withRuntimeConstructor(IrcOutboundRuntime)
   //.withServicePublication('irc-automaton')
